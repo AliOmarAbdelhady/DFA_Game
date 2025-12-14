@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StateSmith - Automata Escape Room</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Main Menu Screen -->
+    <div id="menu-screen" class="screen active">
+        <div class="menu-container">
+            <div class="game-title">
+                <i class="fas fa-dungeon"></i>
+                <h1>StateSmith</h1>
+                <p class="tagline">Automata Escape Room</p>
+            </div>
+            
+            <div class="menu-buttons">
+                <button class="menu-btn" onclick="showLevelSelect()">
+                    <i class="fas fa-play"></i>
+                    <span>Start Adventure</span>
+                </button>
+                <button class="menu-btn" onclick="showInstructions()">
+                    <i class="fas fa-book"></i>
+                    <span>How to Play</span>
+                </button>
+                <button class="menu-btn" onclick="showAchievements()">
+                    <i class="fas fa-trophy"></i>
+                    <span>Achievements</span>
+                </button>
+                <button class="menu-btn" onclick="showProgress()">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Progress</span>
+                </button>
+            </div>
+            
+            <div class="menu-footer">
+                <p>Build DFA machines to escape the dungeon!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Select Screen -->
+    <div id="level-select-screen" class="screen">
+        <div class="screen-header">
+            <button class="back-btn" onclick="showMenu()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <h2>Select Your Challenge</h2>
+            <div class="progress-badge">
+                <i class="fas fa-star"></i>
+                <span id="total-stars">0</span>
+            </div>
+        </div>
+        
+        <div class="levels-grid" id="levels-grid">
+            <!-- Levels will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <button class="back-btn" onclick="exitLevel()">
+                <i class="fas fa-door-open"></i> Exit
+            </button>
+            <div class="level-info">
+                <h3 id="level-title">Level 1</h3>
+                <span class="difficulty-badge" id="difficulty-badge">Easy</span>
+            </div>
+            <div class="level-stars" id="level-stars">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+            </div>
+        </div>
+
+        <div class="game-layout">
+            <!-- Left Panel: Level Description -->
+            <aside class="level-panel">
+                <div class="panel-section">
+                    <h4><i class="fas fa-door-closed"></i> The Door</h4>
+                    <p id="level-description" class="door-description"></p>
+                </div>
+
+                <div class="panel-section">
+                    <h4><i class="fas fa-book-open"></i> Rule</h4>
+                    <p id="level-rule" class="rule-text"></p>
+                </div>
+
+                <div class="panel-section">
+                    <h4><i class="fas fa-font"></i> Alphabet</h4>
+                    <div id="alphabet-display" class="alphabet-symbols"></div>
+                </div>
+
+                <div class="panel-section">
+                    <h4><i class="fas fa-key"></i> Test Keys</h4>
+                    <div class="keys-container">
+                        <div class="keys-group">
+                            <span class="keys-label">Good Keys:</span>
+                            <div id="good-keys" class="keys-list"></div>
+                        </div>
+                        <div class="keys-group">
+                            <span class="keys-label">Bad Keys:</span>
+                            <div id="bad-keys" class="keys-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <button class="hint-btn" onclick="showHint()">
+                        <i class="fas fa-lightbulb"></i> Get Hint
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Center: State Machine Builder -->
+            <main class="builder-area">
+                <div class="builder-header">
+                    <h4><i class="fas fa-project-diagram"></i> Build Your Automaton</h4>
+                    <div class="builder-controls">
+                        <button class="tool-btn" id="add-state-btn" onclick="addState()">
+                            <i class="fas fa-plus-circle"></i> Add State
+                        </button>
+                        <button class="tool-btn" onclick="clearCanvas()">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="state-canvas" width="800" height="500"></canvas>
+                    <div class="canvas-info">
+                        <span><i class="fas fa-mouse-pointer"></i> Click to add states</span>
+                        <span><i class="fas fa-hand-pointer"></i> Drag to move</span>
+                        <span><i class="fas fa-arrow-right"></i> Right-click for transitions</span>
+                    </div>
+                </div>
+
+                <div class="state-controls">
+                    <div class="control-group">
+                        <label>Selected State:</label>
+                        <span id="selected-state-display">None</span>
+                    </div>
+                    <div class="control-group">
+                        <button class="action-btn" onclick="toggleStartState()">
+                            <i class="fas fa-flag"></i> Set Start
+                        </button>
+                        <button class="action-btn" onclick="toggleAcceptState()">
+                            <i class="fas fa-check-circle"></i> Toggle Accept
+                        </button>
+                        <button class="action-btn danger" onclick="deleteSelected()">
+                            <i class="fas fa-times"></i> Delete
+                        </button>
+                    </div>
+                </div>
+
+                <div class="test-section">
+                    <button class="test-btn" onclick="testSolution()">
+                        <i class="fas fa-unlock"></i> Unlock Door!
+                    </button>
+                </div>
+            </main>
+
+            <!-- Right Panel: Testing & Results -->
+            <aside class="results-panel">
+                <div class="panel-section">
+                    <h4><i class="fas fa-vial"></i> Test Results</h4>
+                    <div id="test-results" class="test-results-container">
+                        <p class="placeholder-text">Build your automaton and test it!</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Instructions Modal -->
+    <div id="instructions-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('instructions-modal')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2><i class="fas fa-book"></i> How to Play</h2>
+            <div class="instructions">
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Build a State Machine</h3>
+                        <p>Click on the canvas to add states. Each state is a circle representing a position in your automaton.</p>
+                    </div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Set Start & Accept States</h3>
+                        <p>Select a state and click "Set Start" to mark where your machine begins. Toggle "Accept" for states that open the door.</p>
+                    </div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Add Transitions</h3>
+                        <p>Right-click a state to add transitions. Each symbol must have exactly one transition from each state.</p>
+                    </div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Test Your Solution</h3>
+                        <p>Click "Unlock Door" to test your automaton against all keys. Get 3 stars for perfect solutions!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div id="result-modal" class="modal">
+        <div class="modal-content result-modal">
+            <div class="result-content" id="result-content">
+                <!-- Result will be dynamically inserted -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div id="achievements-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('achievements-modal')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2><i class="fas fa-trophy"></i> Achievements</h2>
+            <div id="achievements-grid" class="achievements-grid">
+                <!-- Achievements will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievement Unlock Notification -->
+    <div id="achievement-notification" class="achievement-notification">
+        <div class="achievement-icon">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <div class="achievement-info">
+            <div class="achievement-title"></div>
+            <div class="achievement-description"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/canvas.js') }}"></script>
+</body>
+</html>
