@@ -9,8 +9,64 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+    <!-- Authentication Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content auth-modal">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form active">
+                <h2><i class="fas fa-door-open"></i> Welcome Back</h2>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Username or Email</label>
+                        <input type="text" id="login-username" required placeholder="Enter username or email">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" id="login-password" required placeholder="Enter password">
+                    </div>
+                    <div id="login-error" class="error-message"></div>
+                    <button type="submit" class="auth-btn">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Signup Form -->
+            <div id="signup-form" class="auth-form">
+                <h2><i class="fas fa-user-plus"></i> Create Account</h2>
+                <form onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Username</label>
+                        <input type="text" id="signup-username" required placeholder="Choose a username (min 3 chars)" minlength="3">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="signup-email" required placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" id="signup-password" required placeholder="Choose a password (min 6 chars)" minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Confirm Password</label>
+                        <input type="password" id="signup-confirm" required placeholder="Confirm your password">
+                    </div>
+                    <div id="signup-error" class="error-message"></div>
+                    <button type="submit" class="auth-btn">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Menu Screen -->
-    <div id="menu-screen" class="screen active">
+    <div id="menu-screen" class="screen active" style="display: none;">
         <div class="menu-container">
             <div class="game-title">
                 <i class="fas fa-dungeon"></i>
@@ -35,10 +91,81 @@
                     <i class="fas fa-chart-bar"></i>
                     <span>Progress</span>
                 </button>
+                <button class="menu-btn" onclick="showProfile()">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Profile</span>
+                </button>
             </div>
             
             <div class="menu-footer">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="username-display"></span>
+                    <button class="logout-btn" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
                 <p>Build DFA machines to escape the dungeon!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Screen -->
+    <div id="profile-screen" class="screen">
+        <div class="screen-header">
+            <button class="back-btn" onclick="showMenu()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <h2>User Profile</h2>
+        </div>
+        
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <h3 id="profile-username">Username</h3>
+                <p id="profile-email" class="profile-email">email@example.com</p>
+            </div>
+            
+            <div class="profile-stats">
+                <h4><i class="fas fa-chart-line"></i> Account Statistics</h4>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-trophy"></i>
+                        <div class="stat-value" id="stat-completed">0</div>
+                        <div class="stat-label">Levels Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <div class="stat-value" id="stat-stars">0</div>
+                        <div class="stat-label">Total Stars</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-award"></i>
+                        <div class="stat-value" id="stat-achievements">0</div>
+                        <div class="stat-label">Achievements</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar"></i>
+                        <div class="stat-value" id="stat-joined">Today</div>
+                        <div class="stat-label">Member Since</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-actions">
+                <h4><i class="fas fa-cog"></i> Account Settings</h4>
+                <div class="action-buttons">
+                    <button class="action-btn danger-btn" onclick="confirmDeleteAccount()">
+                        <i class="fas fa-trash-alt"></i>
+                        Delete Account
+                    </button>
+                    <button class="action-btn warning-btn" onclick="confirmResetProgress()">
+                        <i class="fas fa-redo"></i>
+                        Reset Progress
+                    </button>
+                </div>
             </div>
         </div>
     </div>

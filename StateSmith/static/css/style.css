@@ -164,6 +164,326 @@ body::before {
     font-size: 0.95rem;
 }
 
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding: 12px 20px;
+    background: var(--bg-card);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+
+.user-info i {
+    color: var(--primary);
+    font-size: 1.2rem;
+}
+
+.user-info span {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.logout-btn {
+    padding: 6px 12px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+    margin-left: 10px;
+}
+
+.logout-btn:hover {
+    background: #c23854;
+    transform: translateY(-2px);
+}
+
+/* ===== USER PROFILE ===== */
+.profile-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.profile-header {
+    text-align: center;
+    padding: 40px;
+    background: var(--bg-card);
+    border-radius: 15px;
+    border: 2px solid var(--border);
+    margin-bottom: 30px;
+}
+
+.profile-avatar {
+    font-size: 100px;
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.profile-header h3 {
+    font-size: 2rem;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--text-light);
+    margin-bottom: 10px;
+}
+
+.profile-email {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.profile-stats,
+.profile-actions {
+    background: var(--bg-card);
+    border-radius: 15px;
+    border: 2px solid var(--border);
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.profile-stats h4,
+.profile-actions h4 {
+    font-size: 1.3rem;
+    color: var(--text-light);
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-stats h4 i,
+.profile-actions h4 i {
+    color: var(--primary);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background: var(--bg-dark);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-5px);
+}
+
+.stat-card i {
+    font-size: 2.5rem;
+    color: var(--accent);
+    margin-bottom: 15px;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-light);
+    font-family: 'Orbitron', sans-serif;
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    flex: 1;
+    min-width: 200px;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.danger-btn {
+    background: var(--danger);
+    color: white;
+}
+
+.danger-btn:hover {
+    background: #c23854;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(239, 71, 111, 0.3);
+}
+
+.warning-btn {
+    background: #f39c12;
+    color: white;
+}
+
+.warning-btn:hover {
+    background: #d68910;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+}
+
+/* ===== AUTHENTICATION MODAL ===== */
+.modal {
+    display: flex;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 14, 39, 0.95);
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-modal {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 15px;
+    padding: 40px;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 12px;
+    background: var(--bg-dark);
+    color: var(--text-muted);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.auth-tab:hover {
+    background: var(--bg-hover);
+}
+
+.auth-tab.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.auth-form {
+    display: none;
+}
+
+.auth-form.active {
+    display: block;
+}
+
+.auth-form h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: var(--text-light);
+    font-family: 'Orbitron', sans-serif;
+}
+
+.auth-form h2 i {
+    color: var(--primary);
+    margin-right: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.form-group label i {
+    color: var(--primary);
+    margin-right: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    background: var(--bg-dark);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--bg-darker);
+}
+
+.error-message {
+    color: var(--danger);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    text-align: center;
+    min-height: 20px;
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+.auth-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+}
+
+.auth-btn i {
+    margin-right: 8px;
+}
+
 /* ===== LEVEL SELECT ===== */
 .screen-header {
     display: flex;

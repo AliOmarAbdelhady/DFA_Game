@@ -2,12 +2,140 @@
 let currentLevel = null;
 let levels = [];
 let progress = {};
+let currentUser = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
+    checkAuthentication();
+});
+
+// ===== AUTHENTICATION =====
+async function checkAuthentication() {
+    try {
+        const response = await fetch('/api/auth/current_user');
+        const data = await response.json();
+        
+        if (data.success && data.authenticated) {
+            currentUser = data.user;
+            showMainApp();
+        } else {
+            showAuthModal();
+        }
+    } catch (error) {
+        console.error('Error checking authentication:', error);
+        showAuthModal();
+    }
+}
+
+function showAuthModal() {
+    document.getElementById('auth-modal').style.display = 'flex';
+    document.getElementById('menu-screen').style.display = 'none';
+}
+
+function hideAuthModal() {
+    document.getElementById('auth-modal').style.display = 'none';
+    document.getElementById('menu-screen').style.display = 'block';
+}
+
+function showMainApp() {
+    hideAuthModal();
+    document.getElementById('username-display').textContent = currentUser.username;
     loadProgress();
     loadLevels();
-});
+    showMenu();
+}
+
+function switchAuthTab(tab) {
+    // Update tabs
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Update forms
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+    document.getElementById(`${tab}-form`).classList.add('active');
+    
+    // Clear errors
+    document.getElementById('login-error').textContent = '';
+    document.getElementById('signup-error').textContent = '';
+}
+
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errorEl = document.getElementById('login-error');
+    
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentUser = data.user;
+            showToast(`Welcome back, ${currentUser.username}!`, 'success');
+            showMainApp();
+        } else {
+            errorEl.textContent = data.error || 'Login failed';
+        }
+    } catch (error) {
+        errorEl.textContent = 'Network error. Please try again.';
+        console.error('Login error:', error);
+    }
+}
+
+async function handleSignup(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('signup-username').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const confirm = document.getElementById('signup-confirm').value;
+    const errorEl = document.getElementById('signup-error');
+    
+    // Validate password match
+    if (password !== confirm) {
+        errorEl.textContent = 'Passwords do not match';
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentUser = data.user;
+            showToast(`Welcome, ${currentUser.username}! Your adventure begins!`, 'success');
+            showMainApp();
+        } else {
+            errorEl.textContent = data.error || 'Signup failed';
+        }
+    } catch (error) {
+        errorEl.textContent = 'Network error. Please try again.';
+        console.error('Signup error:', error);
+    }
+}
+
+async function handleLogout() {
+    try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        currentUser = null;
+        showToast('Logged out successfully', 'info');
+        showAuthModal();
+    } catch (error) {
+        console.error('Logout error:', error);
+        showToast('Logout failed', 'error');
+    }
+}
 
 // Screen navigation
 function showScreen(screenId) {
@@ -37,10 +165,110 @@ function showProgress() {
     showToast(`Progress: ${completed}/${totalLevels} levels completed with ${totalStars} total stars!`, 'info');
 }
 
+// Profile functions
+async function showProfile() {
+    showScreen('profile-screen');
+    await loadProfileData();
+}
+
+async function loadProfileData() {
+    try {
+        // Load user info
+        document.getElementById('profile-username').textContent = currentUser.username;
+        document.getElementById('profile-email').textContent = currentUser.email;
+        
+        // Load progress for stats
+        await loadProgress();
+        
+        // Load achievements
+        const achResponse = await fetch('/api/achievements');
+        const achData = await achResponse.json();
+        
+        // Update stats
+        document.getElementById('stat-completed').textContent = progress.completed_levels || 0;
+        document.getElementById('stat-stars').textContent = progress.total_stars || 0;
+        document.getElementById('stat-achievements').textContent = achData.total || 0;
+        
+        // Format join date
+        if (currentUser.created_at) {
+            const joinDate = new Date(currentUser.created_at);
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            document.getElementById('stat-joined').textContent = joinDate.toLocaleDateString('en-US', options);
+        }
+    } catch (error) {
+        console.error('Error loading profile:', error);
+        showToast('Failed to load profile data', 'error');
+    }
+}
+
+function confirmDeleteAccount() {
+    if (confirm('⚠️ WARNING: This will permanently delete your account and all progress!\n\nAre you absolutely sure you want to delete your account? This action cannot be undone.')) {
+        if (confirm('This is your final warning. Delete account "' + currentUser.username + '"?')) {
+            deleteAccount();
+        }
+    }
+}
+
+async function deleteAccount() {
+    try {
+        const response = await fetch('/api/auth/delete_account', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast(data.message, 'success');
+            setTimeout(() => {
+                currentUser = null;
+                showAuthModal();
+            }, 2000);
+        } else {
+            showToast(data.error || 'Failed to delete account', 'error');
+        }
+    } catch (error) {
+        showToast('Network error. Please try again.', 'error');
+        console.error('Delete account error:', error);
+    }
+}
+
+function confirmResetProgress() {
+    if (confirm('Are you sure you want to reset all your progress?\n\nThis will delete:\n- All level completions\n- All stars earned\n- All unlocked achievements\n\nYour account will remain active.')) {
+        resetProgress();
+    }
+}
+
+async function resetProgress() {
+    try {
+        const response = await fetch('/api/reset_progress', {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Progress reset successfully!', 'success');
+            await loadProgress();
+            await loadLevels();
+            showMenu();
+        } else {
+            showToast('Failed to reset progress', 'error');
+        }
+    } catch (error) {
+        showToast('Network error. Please try again.', 'error');
+        console.error('Reset progress error:', error);
+    }
+}
+
 // Load levels from API
 async function loadLevels() {
     try {
         const response = await fetch('/api/levels');
+        if (response.status === 401) {
+            showAuthModal();
+            return;
+        }
         const data = await response.json();
         if (data.success) {
             levels = data.levels;
@@ -55,6 +283,10 @@ async function loadLevels() {
 async function loadProgress() {
     try {
         const response = await fetch('/api/progress');
+        if (response.status === 401) {
+            showAuthModal();
+            return;
+        }
         const data = await response.json();
         if (data.success) {
             progress = data.progress;
